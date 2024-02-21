@@ -1,0 +1,5 @@
+export enum QueueServiceName {
+  POST_SERVICE = 'POST_SERVICE',
+  USER_SERVICE = 'USER_SERVICE',
+  AUTH_SERVICE = 'AUTH_SERVICE',
+}
