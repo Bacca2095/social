@@ -17,12 +17,16 @@ export * from './lib/dto/post/update-post.dto';
 export * from './lib/dto/post/post.dto';
 export * from './lib/dto/post/filter-post.dto';
 
+// Mail dto
+export * from './lib/dto/mail/send-email-new-user.dto';
+
 // Enums
 export * from './lib/enums/queue-names.enum';
 export * from './lib/enums/queue-service-name.enum';
 export * from './lib/enums/user-command.enum';
 export * from './lib/enums/post-command.enum';
 export * from './lib/enums/auth-command.enum';
+export * from './lib/enums/mail-command.enum';
 
 // Guards
 export * from './lib/guards/jwt.guard';

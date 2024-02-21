@@ -25,6 +25,19 @@ import { AuthService } from './providers/auth.service';
         },
       },
     ]),
+    ClientsModule.register([
+      {
+        name: QueueServiceName.MAIL_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://guest:guest@127.0.0.1:5672/vhost'],
+          queue: QueueNames.MAIL,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

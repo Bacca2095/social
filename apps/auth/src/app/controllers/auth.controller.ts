@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { AuthCommand, LoginDto } from '@social/common';
+import { AuthCommand, LoginDto, SignUpDto } from '@social/common';
 
 import { AuthService } from '../providers/auth.service';
 
@@ -11,6 +11,12 @@ export class AuthController {
   @MessagePattern(AuthCommand.LOGIN)
   async login(data: LoginDto): Promise<{ token: string }> {
     const res = await this.authService.login(data);
+    return res;
+  }
+
+  @MessagePattern(AuthCommand.SIGN_UP)
+  async signUp(data: SignUpDto): Promise<boolean> {
+    const res = await this.authService.signUp(data);
     return res;
   }
 

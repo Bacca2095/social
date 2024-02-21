@@ -3,7 +3,9 @@ import { JwtService } from '@nestjs/jwt';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   LoginDto,
+  MailCommand,
   QueueServiceName,
+  SignUpDto,
   UserCommand,
   UserDto,
 } from '@social/common';
@@ -14,7 +16,9 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     @Inject(QueueServiceName.USER_SERVICE)
-    private readonly userClient: ClientProxy
+    private readonly userClient: ClientProxy,
+    @Inject(QueueServiceName.MAIL_SERVICE)
+    private readonly mailClient: ClientProxy
   ) {}
 
   async login(data: LoginDto): Promise<{ token: string }> {
@@ -29,6 +33,27 @@ export class AuthService {
       });
 
       return { token };
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async signUp(data: SignUpDto): Promise<boolean> {
+    try {
+      const user = await lastValueFrom<UserDto>(
+        this.userClient.send(UserCommand.CREATE, data)
+      );
+
+      this.mailClient.emit(MailCommand.SEND_NEW_USER_MAIL, {
+        email: user.email,
+        fullName: user.fullName,
+      });
+
+      if (!user) {
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error(error);
     }
