@@ -6,31 +6,53 @@ import {
   HttpException,
 } from '@nestjs/common';
 
+interface CustomError {
+  code: string;
+  message: string;
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
+    const path = ctx.getRequest().url;
+    const timestamp = new Date().toISOString();
+    let message: string | string[] = 'Internal Server Error';
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 
     if (exception instanceof HttpException) {
-      const status = exception.getStatus();
-      const message =
-        typeof exception.getResponse() === 'object'
-          ? (exception.getResponse() as { message: string | string[] }).message
-          : exception.getResponse();
-      response.status(status).json({
-        path: ctx.getRequest().url,
-        statusCode: status,
-        message,
-        timestamp: new Date().toISOString(),
-      });
+      statusCode = exception.getStatus();
+      message = this.getErrorMessage(exception);
+    }
+
+    if (this.isCustomError(exception)) {
+      const error = exception as CustomError;
+      statusCode = error.code as unknown as number;
+      message = error.message;
+    }
+
+    response.status(statusCode).json({
+      path,
+      statusCode,
+      message,
+      timestamp,
+    });
+  }
+
+  private isCustomError(error: unknown): boolean {
+    return (error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      'message' in error) as boolean;
+  }
+
+  private getErrorMessage(exception: HttpException): string | string[] {
+    const response = exception.getResponse();
+    if (typeof response === 'object' && 'message' in response) {
+      return (response as { message: string | string[] }).message;
     } else {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        path: ctx.getRequest().url,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal Server Error',
-        timestamp: new Date().toISOString(),
-      });
+      return response as string;
     }
   }
 }
