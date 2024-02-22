@@ -1,22 +1,22 @@
 {
-  "name": "post",
+  "name": "mail-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/post/src",
+  "sourceRoot": "apps/mail-app/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "post:build",
+        "buildTarget": "mail-app:build",
         "inspect": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "post:build:development"
+          "buildTarget": "mail-app:build:development"
         },
         "production": {
-          "buildTarget": "post:build:production"
+          "buildTarget": "mail-app:build:production"
         }
       }
     }

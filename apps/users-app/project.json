@@ -1,22 +1,22 @@
 {
-  "name": "users",
+  "name": "users-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/users/src",
+  "sourceRoot": "apps/users-app/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "users:build",
+        "buildTarget": "users-app:build",
         "inspect": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "users:build:development"
+          "buildTarget": "users-app:build:development"
         },
         "production": {
-          "buildTarget": "users:build:production"
+          "buildTarget": "users-app:build:production"
         }
       }
     }

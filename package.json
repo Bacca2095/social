@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve",
-    "start:all": "concurrently \"nx serve api\" \"nx serve auth\" \"nx serve mail\" \"nx serve post\" \"nx serve users\"",
+    "start:all": "concurrently \"nx serve api-gateway\" \"nx serve auth-app\" \"nx serve mail-app\" \"nx serve posts-app\" \"nx serve users-app\"",
     "build": "nx build",
     "test": "nx test",
     "lint": "nx run-many --target=lint --all --parallel --maxParallel=10",

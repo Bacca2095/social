@@ -21,7 +21,7 @@ async function bootstrap() {
   app.useLogger(logger);
 
   app.listen();
-  logger.log(`🚀 Auth microservice is up and running ...`);
+  logger.log(`🔐 Auth microservice is up and running ...`);
 }
 
 bootstrap();

@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from '@social/common';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
+  const logger = new Logger('ApiGatewayMicroservice');
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
@@ -32,6 +33,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  app.useLogger(logger);
   SwaggerModule.setup('api', app, document);
   await app.listen(port);
   Logger.log(

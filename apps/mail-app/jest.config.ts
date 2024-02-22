@@ -1,11 +1,11 @@
 /* eslint-disable */
 export default {
-  displayName: 'post',
+  displayName: 'mail-app',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/apps/post',
+  coverageDirectory: '../../coverage/apps/mail-app',
 };

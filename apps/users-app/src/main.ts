@@ -6,21 +6,23 @@ import { QueueNames } from '@social/common';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const logger = new Logger('PostMicroservice');
+  const logger = new Logger('UserMicroservice');
   const app = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://guest:guest@127.0.0.1:5672/vhost'],
-      queue: QueueNames.POSTS,
+      queue: QueueNames.USERS,
       queueOptions: {
         durable: true,
       },
     },
+    bufferLogs: true,
   });
+
   app.useLogger(logger);
 
   app.listen();
-  logger.log(`🚀 Post microservice is up and running ...`);
+  logger.log(`🙎 User microservice is up and running ...`);
 }
 
 bootstrap();

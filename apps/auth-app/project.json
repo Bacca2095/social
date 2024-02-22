@@ -8,7 +8,8 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "auth-app:build"
+        "buildTarget": "auth-app:build",
+        "inspect": false
       },
       "configurations": {
         "development": {
