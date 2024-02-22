@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { SendEmailNewUserDto } from '@social/common';
+import { EnvironmentService, SendEmailNewUserDto } from '@social/common';
 import Mailjet from 'node-mailjet';
 
 @Injectable()
 export class MailService {
   mailService: Mailjet;
-  constructor() {
-    this.mailService = Mailjet.apiConnect(
-      process.env['MAIL_API'],
-      process.env['MAIL_SECRET']
-    );
+  defaultSender: string;
+  constructor(private readonly envService: EnvironmentService) {
+    const { MAIL_API_TOKEN, MAIL_SECRET_TOKEN, MAIL_DEFAULT_SENDER } =
+      this.envService.environment;
+    this.mailService = Mailjet.apiConnect(MAIL_API_TOKEN, MAIL_SECRET_TOKEN);
+    this.defaultSender = MAIL_DEFAULT_SENDER;
   }
   async sendNewUserMail(data: SendEmailNewUserDto) {
     const text = `Dear ${data.fullName}, welcome to social app!`;
@@ -18,12 +19,12 @@ export class MailService {
       Messages: [
         {
           From: {
-            Email: 'bacca2095@gmail.com',
+            Email: `${this.defaultSender}`,
             Name: 'Social app',
           },
           To: [
             {
-              Email: 'cesarbaccadev@gmail.com',
+              Email: data.email,
               Name: data.fullName,
             },
           ],

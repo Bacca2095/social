@@ -5,6 +5,8 @@ import {
   QueueNames,
   JwtStrategy,
   PrismaService,
+  EnvironmentService,
+  CommonModule,
 } from '@social/common';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -18,30 +20,40 @@ import { SessionService } from './providers/session.service';
       secret: 'secret',
       signOptions: { expiresIn: '1h' },
     }),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: QueueServiceName.USER_SERVICE,
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://guest:guest@127.0.0.1:5672/vhost'],
-          queue: QueueNames.USERS,
-          queueOptions: {
-            durable: true,
+        imports: [CommonModule],
+
+        useFactory: async (envService: EnvironmentService) => ({
+          transport: Transport.RMQ,
+          options: {
+            queue: QueueNames.USERS,
+            urls: [envService.environment.RABBITMQ_URL],
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
+        inject: [EnvironmentService],
       },
     ]),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: QueueServiceName.MAIL_SERVICE,
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://guest:guest@127.0.0.1:5672/vhost'],
-          queue: QueueNames.MAIL,
-          queueOptions: {
-            durable: true,
+        imports: [CommonModule],
+
+        useFactory: async (envService: EnvironmentService) => ({
+          transport: Transport.RMQ,
+          options: {
+            queue: QueueNames.MAIL,
+            urls: [envService.environment.RABBITMQ_URL],
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
+        inject: [EnvironmentService],
       },
     ]),
   ],

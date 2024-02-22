@@ -70,7 +70,7 @@ export class PostClientController {
     return this.postClientService.delete(id, user.id);
   }
 
-  @Post(':id/like')
+  @Patch(':id/like')
   async like(@Param('id') id: string): Promise<PostLikeDto> {
     return this.postClientService.like(id);
   }

@@ -1,5 +1,9 @@
+// Modules
 export * from './lib/common.module';
+
+// Services
 export * from './lib/providers/prisma.service';
+export * from './lib/providers/environment.service';
 
 // Auth dto
 export * from './lib/dto/auth/sign-up.dto';

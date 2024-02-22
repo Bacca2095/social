@@ -1,23 +1,33 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { QueueServiceName, QueueNames } from '@social/common';
+import {
+  QueueServiceName,
+  QueueNames,
+  EnvironmentService,
+  CommonModule,
+} from '@social/common';
 
 import { AuthClientController } from './controllers/auth-client.controller';
 import { AuthClientService } from './providers/auth-client.service';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: QueueServiceName.AUTH_SERVICE,
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://guest:guest@127.0.0.1:5672/vhost'],
-          queue: QueueNames.AUTH,
-          queueOptions: {
-            durable: true,
+        imports: [CommonModule],
+
+        useFactory: async (envService: EnvironmentService) => ({
+          transport: Transport.RMQ,
+          options: {
+            queue: QueueNames.AUTH,
+            urls: [envService.environment.RABBITMQ_URL],
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
+        inject: [EnvironmentService],
       },
     ]),
   ],

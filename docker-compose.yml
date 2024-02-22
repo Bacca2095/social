@@ -1,24 +1,85 @@
 version: "3.8"
 
 services:
-  # postgresql
-  # ***************************************
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./
+      dockerfile: ./docker/api-gateway.dockerfile
+      args:
+        NODE_ENV: "production"
+    image: api-gateway:social
+    ports:
+      - 3000:3000
+    env_file:
+      - .docker.env
+    networks:
+      - social-microservice
+    restart: on-failure
+  auth-app:
+    container_name: auth-app
+    build:
+      context: ./
+      dockerfile: ./docker/auth.dockerfile
+      args:
+        NODE_ENV: "production"
+    image: auth-app:social
+    env_file:
+      - .docker.env
+    networks:
+      - social-microservice
+    restart: on-failure
+  users-app:
+    container_name: users-app
+    build:
+      context: ./
+      dockerfile: ./docker/users.dockerfile
+      args:
+        NODE_ENV: "production"
+    image: users-app:social
+    env_file:
+      - .docker.env
+    networks:
+      - social-microservice
+    restart: on-failure
+  mail-app:
+    container_name: mail-app
+    build:
+      context: ./
+      dockerfile: ./docker/mail.dockerfile
+      args:
+        NODE_ENV: "production"
+    image: mail-app:social
+    env_file:
+      - .docker.env
+    networks:
+      - social-microservice
+    restart: on-failure
+  posts-app:
+    container_name: posts-app
+    build:
+      context: ./
+      dockerfile: ./docker/posts.dockerfile
+      args:
+        NODE_ENV: "production"
+    image: posts-app:social
+    env_file:
+      - .docker.env
+    networks:
+      - social-microservice
+    restart: on-failure
   postgres:
     image: postgres:latest
-    container_name: nx-nestjs-microservice-pg
+    container_name: postgres
     restart: always
     ports:
       - "5432:5432"
-    volumes:
-      - ./pg/pgData:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: social
       POSTGRES_USER: docker
       POSTGRES_PASSWORD: docker
     networks:
-      - nx-nestjs-microservice
-  # rabbitmq
-  # ***************************************
+      - social-microservice
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -28,6 +89,6 @@ services:
       - 5672:5672
       - 15672:15672
     networks:
-      - nx-nestjs-microservice
+      - social-microservice
 networks:
-  nx-nestjs-microservice:
+  social-microservice:

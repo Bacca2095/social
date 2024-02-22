@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nx serve",
     "start:all": "concurrently \"nx serve api-gateway\" \"nx serve auth-app\" \"nx serve mail-app\" \"nx serve posts-app\" \"nx serve users-app\"",
+    "start:prod": "npm run migrate:deploy && pm2-runtime main.js",
     "build": "nx build",
     "test": "nx test",
     "lint": "nx run-many --target=lint --all --parallel --maxParallel=10",
@@ -15,6 +16,7 @@
   "private": true,
   "dependencies": {
     "@nestjs/common": "^10.0.2",
+    "@nestjs/config": "^3.2.0",
     "@nestjs/core": "^10.0.2",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/microservices": "^10.3.3",

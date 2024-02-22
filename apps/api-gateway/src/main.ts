@@ -1,7 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { HttpExceptionFilter } from '@social/common';
+import { EnvironmentService, HttpExceptionFilter } from '@social/common';
 
 import { AppModule } from './app/app.module';
 
@@ -12,7 +12,10 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   app.enableCors();
 
-  const port = process.env.PORT || 3000;
+  const envService = app.get(EnvironmentService);
+  const { environment } = envService;
+
+  const port = environment.APP_PORT;
 
   app.useGlobalPipes(
     new ValidationPipe({
