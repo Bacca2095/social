@@ -6,7 +6,7 @@
     "start": "nx serve",
     "start:all": "concurrently \"nx serve api-gateway\" \"nx serve auth-app\" \"nx serve mail-app\" \"nx serve posts-app\" \"nx serve users-app\"",
     "start:prod": "npm run migrate:deploy && pm2-runtime main.js",
-    "build": "nx build",
+    "build": "nx run-many --target=build --all --parallel --maxParallel=10",
     "test": "nx test",
     "lint": "nx run-many --target=lint --all --parallel --maxParallel=10",
     "generate:schemas": "npx prisma generate",
