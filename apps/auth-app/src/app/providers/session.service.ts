@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { CreateSessionDto, PrismaService } from '@social/common';
+import {
+  CreateSessionDto,
+  ExtendedPrismaClientType,
+  PrismaService,
+} from '@social/common';
 
 @Injectable()
 export class SessionService {
-  private readerClient: PrismaClient;
-  private writerClient: PrismaClient;
+  private readerClient: ExtendedPrismaClientType;
+  private writerClient: ExtendedPrismaClientType;
 
   constructor(private readonly prismaService: PrismaService) {
     this.readerClient = prismaService.readerClient;
@@ -21,21 +24,7 @@ export class SessionService {
       ]);
       return session;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2002':
-            throw new RpcException({
-              code: 409,
-              message: 'Session already exists',
-            });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
 
@@ -45,32 +34,40 @@ export class SessionService {
         where: { id, userId },
       });
     } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
 
   async delete(id: string) {
     try {
-      const [session] = await this.writerClient.$transaction([
-        this.writerClient.session.delete({ where: { id } }),
-      ]);
+      const session = await this.writerClient.session.softDelete(id);
       return session;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2002':
-            throw new RpcException({
-              code: 409,
-              message: 'Session not found',
-            });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
+  }
+
+  private handleError(error: PrismaClientKnownRequestError): never {
+    let errorCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal Server Error';
+
+    if (error instanceof PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002':
+          errorCode = HttpStatus.CONFLICT;
+          message = 'Session already exists';
+          break;
+        case 'P2016':
+        case 'P2025':
+          errorCode = HttpStatus.NOT_FOUND;
+          message = 'Session not found';
+          break;
+        default:
+          errorCode = HttpStatus.UNPROCESSABLE_ENTITY;
+          message = 'Unprocessable entity';
+      }
+    }
+
+    throw new RpcException({ code: errorCode, message: message });
   }
 }

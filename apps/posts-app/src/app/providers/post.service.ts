@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   CreatePostDto,
+  ExtendedPrismaClientType,
   FilterPostDto,
   PaginationResponseDto,
   PaginationUtil,
@@ -16,8 +16,8 @@ import {
 
 @Injectable()
 export class PostService {
-  private readerClient: PrismaClient;
-  private writerClient: PrismaClient;
+  private readerClient: ExtendedPrismaClientType;
+  private writerClient: ExtendedPrismaClientType;
 
   constructor(private readonly prismaService: PrismaService) {
     this.readerClient = prismaService.readerClient;
@@ -128,19 +128,7 @@ export class PostService {
 
   async delete(id: string, userId: string): Promise<PostDto> {
     try {
-      const [post] = await this.writerClient.$transaction([
-        this.writerClient.post.update({
-          include: {
-            user: {
-              select: {
-                fullName: true,
-              },
-            },
-          },
-          where: { id, userId },
-          data: { deletedAt: new Date() },
-        }),
-      ]);
+      const post = await this.writerClient.post.softDelete(id, userId);
       return PostMapperUtil.toDto(post);
     } catch (error) {
       this.handleError(error);

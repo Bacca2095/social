@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
@@ -34,7 +34,7 @@ export class AuthService {
 
       return this.generateToken(user);
     } catch (error) {
-      throw new RpcException(error);
+      this.handleError(error);
     }
   }
 
@@ -51,7 +51,7 @@ export class AuthService {
 
       return this.generateToken(user);
     } catch (error) {
-      throw new RpcException(error);
+      this.handleError(error);
     }
   }
 
@@ -60,7 +60,7 @@ export class AuthService {
       const decoded = this.jwtService.decode<JwtPayloadDto>(jwt);
       await this.sessionService.delete(decoded.sessionId);
     } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
 
@@ -77,7 +77,7 @@ export class AuthService {
       }
       return decoded;
     } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
 
@@ -96,7 +96,14 @@ export class AuthService {
 
       return { token };
     } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
+  }
+
+  handleError(error: { code?: number; message: string }): never {
+    throw new RpcException({
+      code: error?.code || HttpStatus.INTERNAL_SERVER_ERROR,
+      message: error.message,
+    });
   }
 }

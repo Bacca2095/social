@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   CreateUserDto,
+  ExtendedPrismaClientType,
   FilterUserDto,
   LoginDto,
   PaginationResponseDto,
@@ -18,8 +18,8 @@ import { compareSync, hashSync } from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  private readerClient: PrismaClient;
-  private writerClient: PrismaClient;
+  private readerClient: ExtendedPrismaClientType;
+  private writerClient: ExtendedPrismaClientType;
 
   constructor(private readonly prismaService: PrismaService) {
     this.readerClient = prismaService.readerClient;
@@ -94,12 +94,7 @@ export class UserService {
   }
   async delete(id: string): Promise<UserWithoutPasswordDto> {
     try {
-      const [user] = await this.writerClient.$transaction([
-        this.writerClient.user.update({
-          where: { id },
-          data: { deletedAt: new Date() },
-        }),
-      ]);
+      const user = await this.writerClient.user.softDelete(id);
       return UserMapperUtil.toDtoWithoutPassword(user);
     } catch (error) {
       this.handleError(error);
