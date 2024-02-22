@@ -7,6 +7,7 @@ import {
   QueueServiceName,
   UpdatePostDto,
 } from '@social/common';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class PostClientService {
@@ -16,22 +17,24 @@ export class PostClientService {
   ) {}
 
   async create(data: CreatePostDto) {
-    return this.postClient.send(PostCommand.CREATE, data);
+    return lastValueFrom(this.postClient.send(PostCommand.CREATE, data));
   }
 
   async findOne(id: string) {
-    return this.postClient.send(PostCommand.GET, id);
+    return lastValueFrom(this.postClient.send(PostCommand.GET, id));
   }
 
   async findMany(query: FilterPostDto) {
-    return this.postClient.send(PostCommand.GET_ALL, query);
+    return lastValueFrom(this.postClient.send(PostCommand.GET_ALL, query));
   }
 
   async update(id: string, data: UpdatePostDto) {
-    return this.postClient.send(PostCommand.UPDATE, { id, data });
+    return lastValueFrom(
+      this.postClient.send(PostCommand.UPDATE, { id, data })
+    );
   }
 
   async delete(id: string) {
-    return this.postClient.send(PostCommand.DELETE, id);
+    return lastValueFrom(this.postClient.send(PostCommand.DELETE, id));
   }
 }

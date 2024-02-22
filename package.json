@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve",
-    "start:all": "nx run-many --target=serve --all --parallel --maxParallel=10",
+    "start:all": "concurrently \"nx serve api\" \"nx serve auth\" \"nx serve mail\" \"nx serve post\" \"nx serve users\"",
     "build": "nx build",
     "test": "nx test",
     "lint": "nx run-many --target=lint --all --parallel --maxParallel=10",
@@ -56,6 +56,7 @@
     "@types/node": "~18.16.9",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
+    "concurrently": "^8.2.2",
     "eslint": "~8.48.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.1",

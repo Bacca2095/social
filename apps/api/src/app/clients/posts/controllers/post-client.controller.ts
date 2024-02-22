@@ -13,6 +13,7 @@ import {
   AuthGuard,
   CreatePostDto,
   FilterPostDto,
+  PostDto,
   UpdatePostDto,
 } from '@social/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -27,7 +28,7 @@ export class PostClientController {
   constructor(private readonly postClientService: PostClientService) {}
 
   @Post()
-  async create(@Body() data: CreatePostDto) {
+  async create(@Body() data: CreatePostDto): Promise<PostDto> {
     return this.postClientService.create(data);
   }
 

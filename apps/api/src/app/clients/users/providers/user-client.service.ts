@@ -7,6 +7,7 @@ import {
   UpdateUserDto,
   UserCommand,
 } from '@social/common';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserClientService {
@@ -16,22 +17,24 @@ export class UserClientService {
   ) {}
 
   async create(data: CreateUserDto) {
-    return this.userClient.send(UserCommand.CREATE, data);
+    return lastValueFrom(this.userClient.send(UserCommand.CREATE, data));
   }
 
   async findOne(id: string) {
-    return this.userClient.send(UserCommand.GET, id);
+    return lastValueFrom(this.userClient.send(UserCommand.GET, id));
   }
 
   async findMany(query: FilterUserDto) {
-    return this.userClient.send(UserCommand.GET_ALL, query);
+    return lastValueFrom(this.userClient.send(UserCommand.GET_ALL, query));
   }
 
   async update(id: string, data: UpdateUserDto) {
-    return this.userClient.send(UserCommand.UPDATE, { id, data });
+    return lastValueFrom(
+      this.userClient.send(UserCommand.UPDATE, { id, data })
+    );
   }
 
   async delete(id: string) {
-    return this.userClient.send(UserCommand.DELETE, id);
+    return lastValueFrom(this.userClient.send(UserCommand.DELETE, id));
   }
 }

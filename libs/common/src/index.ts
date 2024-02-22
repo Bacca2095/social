@@ -4,6 +4,8 @@ export * from './lib/providers/prisma.service';
 // Auth dto
 export * from './lib/dto/auth/sign-up.dto';
 export * from './lib/dto/auth/login.dto';
+export * from './lib/dto/auth/token.dto';
+export * from './lib/dto/auth/jwt-payload.dto';
 
 // User dto
 export * from './lib/dto/user/create-user.dto';
@@ -19,6 +21,10 @@ export * from './lib/dto/post/filter-post.dto';
 
 // Mail dto
 export * from './lib/dto/mail/send-email-new-user.dto';
+
+// Session dto
+export * from './lib/dto/session/session.dto';
+export * from './lib/dto/session/create-session.dto';
 
 // Enums
 export * from './lib/enums/queue-names.enum';

@@ -9,6 +9,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { QueueServiceName } from '../enums/queue-service-name.enum';
 import { AuthCommand } from '../enums/auth-command.enum';
+import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,18 +26,17 @@ export class AuthGuard implements CanActivate {
 
       if (!token) return false;
 
-      const res = await lastValueFrom(
+      const res = await lastValueFrom<JwtPayloadDto>(
         this.authClient.send(AuthCommand.VALIDATE_TOKEN, {
           jwt: req.headers?.authorization?.split(' ')[1],
         })
       );
 
-      if (res?.user) {
-        req.user = res.user;
-        return true;
-      }
+      if (!res) return false;
 
-      return false;
+      req.user = res;
+
+      return true;
     } catch (err) {
       return false;
     }

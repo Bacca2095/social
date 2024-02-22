@@ -1,6 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { AuthCommand, LoginDto, SignUpDto } from '@social/common';
+import {
+  AuthCommand,
+  JwtPayloadDto,
+  LoginDto,
+  SignUpDto,
+  TokenDto,
+} from '@social/common';
 
 import { AuthService } from '../providers/auth.service';
 
@@ -9,24 +15,29 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern(AuthCommand.LOGIN)
-  async login(data: LoginDto): Promise<{ token: string }> {
+  async login(data: LoginDto): Promise<TokenDto> {
     const res = await this.authService.login(data);
     return res;
   }
 
   @MessagePattern(AuthCommand.SIGN_UP)
-  async signUp(data: SignUpDto): Promise<boolean> {
+  async signUp(data: SignUpDto): Promise<TokenDto> {
     const res = await this.authService.signUp(data);
     return res;
   }
 
+  @MessagePattern(AuthCommand.LOGOUT)
+  async logout(data: { jwt: string }): Promise<void> {
+    await this.authService.logout(data.jwt);
+  }
+
   @MessagePattern(AuthCommand.VALIDATE_TOKEN)
-  async validateToken(data: { jwt: string }): Promise<boolean> {
+  async validateToken(data: { jwt: string }): Promise<JwtPayloadDto | null> {
     try {
-      const res = this.authService.validateToken(data.jwt);
+      const res = await this.authService.validateToken(data.jwt);
       return res;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 }

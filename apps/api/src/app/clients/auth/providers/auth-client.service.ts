@@ -6,6 +6,7 @@ import {
   QueueServiceName,
   SignUpDto,
 } from '@social/common';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthClientService {
@@ -15,10 +16,14 @@ export class AuthClientService {
   ) {}
 
   login(data: LoginDto) {
-    return this.authClient.send(AuthCommand.LOGIN, data);
+    return lastValueFrom(this.authClient.send(AuthCommand.LOGIN, data));
   }
 
   signUp(data: SignUpDto) {
-    return this.authClient.send(AuthCommand.SIGN_UP, data);
+    return lastValueFrom(this.authClient.send(AuthCommand.SIGN_UP, data));
+  }
+
+  async logout(jwt: string): Promise<void> {
+    this.authClient.emit(AuthCommand.LOGOUT, { jwt });
   }
 }

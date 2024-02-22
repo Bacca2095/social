@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   posts     Post[]
+  sessions  Session[]
 }
 
 model Post {
@@ -29,4 +30,14 @@ model Post {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id])
   userId    String
+}
+
+model Session {
+  id        String    @id() @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
