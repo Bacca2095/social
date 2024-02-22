@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { PrismaClient } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -6,9 +6,13 @@ import {
   CreateUserDto,
   FilterUserDto,
   LoginDto,
+  PaginationResponseDto,
+  PaginationUtil,
   PrismaService,
   UpdateUserDto,
   UserDto,
+  UserMapperUtil,
+  UserWithoutPasswordDto,
 } from '@social/common';
 import { compareSync, hashSync } from 'bcrypt';
 
@@ -21,73 +25,74 @@ export class UserService {
     this.readerClient = prismaService.readerClient;
     this.writerClient = prismaService.writerClient;
   }
-  async create(data: CreateUserDto) {
+  async create(data: CreateUserDto): Promise<UserWithoutPasswordDto> {
     try {
-      const hashedPassword = hashSync(data.password, 10);
-      const user = await this.writerClient.$transaction([
+      const hashedPassword = this.hashPassword(data.password);
+      const [user] = await this.writerClient.$transaction([
         this.writerClient.user.create({
           data: { ...data, password: hashedPassword },
         }),
       ]);
-      return user;
+      return UserMapperUtil.toDtoWithoutPassword(user);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2002':
-            throw new RpcException({
-              code: 409,
-              message: 'Email already exists',
-            });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
-  async findOne(id: string) {
+  async findOne(id: string): Promise<UserWithoutPasswordDto> {
     try {
-      return this.readerClient.user.findUnique({ where: { id } });
-    } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
-    }
-  }
-  async findMany(query: FilterUserDto) {
-    try {
-      return this.readerClient.user.findMany({
-        where: {},
-        take: query.take,
-        skip: query.skip,
+      const user = await this.readerClient.user.findUniqueOrThrow({
+        where: { id },
       });
+      return UserMapperUtil.toDtoWithoutPassword(user);
     } catch (error) {
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
-  async update(id: string, data: UpdateUserDto) {
+  async findMany(
+    query: FilterUserDto
+  ): Promise<PaginationResponseDto<UserWithoutPasswordDto>> {
     try {
-      const [user] = await this.writerClient.$transaction([
-        this.writerClient.user.update({ where: { id }, data }),
+      const [users, total] = await this.readerClient.$transaction([
+        this.readerClient.user.findMany({
+          where: {},
+          take: query.take,
+          skip: query.skip,
+        }),
+        this.readerClient.user.count({ where: {} }),
       ]);
-      return user;
+
+      const formattedUsers = UserMapperUtil.toDtos(users);
+
+      return PaginationUtil.paginate<UserWithoutPasswordDto>(
+        formattedUsers,
+        total,
+        query.take
+      );
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2025':
-            throw new RpcException({ code: 404, message: 'User not found' });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
-  async delete(id: string) {
+  async update(
+    id: string,
+    data: UpdateUserDto
+  ): Promise<UserWithoutPasswordDto> {
+    try {
+      const updateData = { ...data };
+      if (updateData.password) {
+        updateData.password = this.hashPassword(updateData.password);
+      }
+
+      const user = await this.writerClient.user.update({
+        where: { id },
+        data: updateData,
+      });
+
+      return UserMapperUtil.toDtoWithoutPassword(user);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async delete(id: string): Promise<UserWithoutPasswordDto> {
     try {
       const [user] = await this.writerClient.$transaction([
         this.writerClient.user.update({
@@ -95,20 +100,9 @@ export class UserService {
           data: { deletedAt: new Date() },
         }),
       ]);
-      return user;
+      return UserMapperUtil.toDtoWithoutPassword(user);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2025':
-            throw new RpcException({ code: 404, message: 'User not found' });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
   }
 
@@ -126,18 +120,34 @@ export class UserService {
 
       return result;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2025':
-            throw new RpcException({ code: 404, message: 'User not found' });
-          default:
-            throw new RpcException({
-              code: 422,
-              message: 'Unprocessable entity',
-            });
-        }
-      }
-      throw new RpcException({ code: 500, message: error.message });
+      this.handleError(error);
     }
+  }
+
+  private hashPassword(password: string): string {
+    return hashSync(password, 10);
+  }
+
+  private handleError(error: unknown): never {
+    let errorCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Internal Server Error';
+
+    if (error instanceof PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002':
+          errorCode = HttpStatus.CONFLICT;
+          message = 'Email already exists';
+          break;
+        case 'P2025':
+          errorCode = HttpStatus.NOT_FOUND;
+          message = 'User not found';
+          break;
+        default:
+          errorCode = HttpStatus.UNPROCESSABLE_ENTITY;
+          message = 'Unprocessable entity';
+          break;
+      }
+    }
+    throw new RpcException({ code: errorCode, message: message });
   }
 }

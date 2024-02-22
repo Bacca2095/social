@@ -4,6 +4,7 @@ import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { PaginationResponseDto } from '../dto/common/pagination-response.dto';
 import { PostDto } from '../dto/post/post.dto';
 import { UserDto } from '../dto/user/user.dto';
+import { UserWithoutPasswordDto } from '../dto/user/user-without-password.dto';
 
 export function ApiPaginatedResponse<T extends Type<unknown>>(model: T) {
   return applyDecorators(
@@ -26,6 +27,11 @@ export function ApiPaginatedResponse<T extends Type<unknown>>(model: T) {
         ],
       },
     }),
-    ApiExtraModels(PostDto, UserDto, PaginationResponseDto)
+    ApiExtraModels(
+      PostDto,
+      UserDto,
+      UserWithoutPasswordDto,
+      PaginationResponseDto
+    )
   );
 }

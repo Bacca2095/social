@@ -14,7 +14,8 @@ import {
   AuthGuard,
   CreateUserDto,
   FilterUserDto,
-  UserDto,
+  PaginationResponseDto,
+  UserWithoutPasswordDto,
 } from '@social/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -28,18 +29,20 @@ export class UserClientController {
   constructor(private readonly userClientService: UserClientService) {}
 
   @Post()
-  async create(@Body() data: CreateUserDto): Promise<UserDto> {
+  async create(@Body() data: CreateUserDto): Promise<UserWithoutPasswordDto> {
     return this.userClientService.create(data);
   }
 
   @Get()
-  @ApiPaginatedResponse(UserDto)
-  async findMany(@Query() query: FilterUserDto): Promise<UserDto[]> {
+  @ApiPaginatedResponse(UserWithoutPasswordDto)
+  async findMany(
+    @Query() query: FilterUserDto
+  ): Promise<PaginationResponseDto<UserWithoutPasswordDto>> {
     return this.userClientService.findMany(query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserDto> {
+  async findOne(@Param('id') id: string): Promise<UserWithoutPasswordDto> {
     return this.userClientService.findOne(id);
   }
 
@@ -47,12 +50,12 @@ export class UserClientController {
   async update(
     @Body() data: CreateUserDto,
     @Param('id') id: string
-  ): Promise<UserDto> {
+  ): Promise<UserWithoutPasswordDto> {
     return this.userClientService.update(id, data);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<UserDto> {
+  async delete(@Param('id') id: string): Promise<UserWithoutPasswordDto> {
     return this.userClientService.delete(id);
   }
 }

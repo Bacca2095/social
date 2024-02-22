@@ -1,10 +1,9 @@
-const { join } = require('path');
-
 const { NxWebpackPlugin } = require('@nx/webpack');
+const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, '../../dist/apps/auth'),
+    path: join(__dirname, '../../dist/apps/api-gateway'),
   },
   plugins: [
     new NxWebpackPlugin({

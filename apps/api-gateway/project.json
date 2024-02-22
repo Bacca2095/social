@@ -1,21 +1,21 @@
 {
-  "name": "auth",
+  "name": "api-gateway",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/auth/src",
+  "sourceRoot": "apps/api-gateway/src",
   "projectType": "application",
   "targets": {
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "auth:build"
+        "buildTarget": "api-gateway:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "auth:build:development"
+          "buildTarget": "api-gateway:build:development"
         },
         "production": {
-          "buildTarget": "auth:build:production"
+          "buildTarget": "api-gateway:build:production"
         }
       }
     }

@@ -40,13 +40,7 @@ export class PostService {
       ]);
       return PostMapperUtil.toDto(post);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
@@ -65,44 +59,46 @@ export class PostService {
 
       return PostMapperUtil.toDto(post);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
   async findMany(
     query: FilterPostDto
   ): Promise<PaginationResponseDto<PostDto>> {
-    const [posts, total] = await this.readerClient.$transaction([
-      this.readerClient.post.findMany({
-        where: {},
-        include: {
-          user: {
-            select: {
-              fullName: true,
+    try {
+      const [posts, total] = await this.readerClient.$transaction([
+        this.readerClient.post.findMany({
+          where: {},
+          include: {
+            user: {
+              select: {
+                fullName: true,
+              },
             },
           },
-        },
-        take: query.take,
-        skip: query.skip,
-      }),
-      this.readerClient.post.count({
-        where: {},
-      }),
-    ]);
+          take: query.take,
+          skip: query.skip,
+        }),
+        this.readerClient.post.count({
+          where: {},
+        }),
+      ]);
 
-    if (total === 0) {
-      return { data: [], totalPages: 0 };
+      if (total === 0) {
+        return { data: [], totalPages: 0 };
+      }
+
+      const formattedPosts = PostMapperUtil.toDtos(posts);
+
+      return PaginationUtil.paginate<PostDto>(
+        formattedPosts,
+        total,
+        query.take
+      );
+    } catch (error) {
+      this.handleError(error);
     }
-
-    const formattedPosts = PostMapperUtil.toDtos(posts);
-
-    return PaginationUtil.paginate<PostDto>(formattedPosts, total, query.take);
   }
 
   async update(
@@ -126,13 +122,7 @@ export class PostService {
       ]);
       return PostMapperUtil.toDto(post);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
@@ -153,13 +143,7 @@ export class PostService {
       ]);
       return PostMapperUtil.toDto(post);
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
@@ -181,13 +165,7 @@ export class PostService {
       ]);
       return post;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
@@ -210,33 +188,29 @@ export class PostService {
 
       return post;
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        this.handlePrismaError(error);
-      }
-      throw new RpcException({
-        code: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
-      });
+      this.handleError(error);
     }
   }
 
-  private handlePrismaError(error: PrismaClientKnownRequestError): never {
+  private handleError(error: PrismaClientKnownRequestError): never {
     let errorCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal Server Error';
 
-    switch (error.code) {
-      case 'P2002':
-        errorCode = HttpStatus.CONFLICT;
-        message = 'Post already exists';
-        break;
-      case 'P2016':
-      case 'P2025':
-        errorCode = HttpStatus.NOT_FOUND;
-        message = 'Post not found';
-        break;
-      default:
-        errorCode = HttpStatus.UNPROCESSABLE_ENTITY;
-        message = 'Unprocessable entity';
+    if (error instanceof PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002':
+          errorCode = HttpStatus.CONFLICT;
+          message = 'Post already exists';
+          break;
+        case 'P2016':
+        case 'P2025':
+          errorCode = HttpStatus.NOT_FOUND;
+          message = 'Post not found';
+          break;
+        default:
+          errorCode = HttpStatus.UNPROCESSABLE_ENTITY;
+          message = 'Unprocessable entity';
+      }
     }
 
     throw new RpcException({ code: errorCode, message: message });

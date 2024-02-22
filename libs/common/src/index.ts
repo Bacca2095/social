@@ -12,6 +12,7 @@ export * from './lib/dto/user/create-user.dto';
 export * from './lib/dto/user/update-user.dto';
 export * from './lib/dto/user/user.dto';
 export * from './lib/dto/user/filter-user.dto';
+export * from './lib/dto/user/user-without-password.dto';
 
 // Post dto
 export * from './lib/dto/post/create-post.dto';
@@ -55,3 +56,4 @@ export * from './lib/filters/http-exception.filter';
 // Utils
 export * from './lib/utils/pagination.util';
 export * from './lib/utils/mappers/post-mapper.util';
+export * from './lib/utils/mappers/user-mapper.util';
