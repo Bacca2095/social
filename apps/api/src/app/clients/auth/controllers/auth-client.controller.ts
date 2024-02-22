@@ -39,7 +39,6 @@ export class AuthClientController {
       await this.authClientService.logout(jwt);
       return true;
     } catch (error) {
-      console.error('Error en logout:', error);
       throw new InternalServerErrorException(
         'Error occurred while logging out.'
       );

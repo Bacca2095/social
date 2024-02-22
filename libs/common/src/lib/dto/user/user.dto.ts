@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -18,6 +19,7 @@ export class UserDto implements User {
   fullName!: string;
 
   @ApiProperty()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
   age!: number | null;
 

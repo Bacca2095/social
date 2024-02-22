@@ -1,9 +1,3 @@
-import { IsNumber } from 'class-validator';
+import { PaginationDto } from '../common/pagination.dto';
 
-export class FilterPostDto {
-  @IsNumber()
-  take!: number;
-
-  @IsNumber()
-  skip!: number;
-}
+export class FilterPostDto extends PaginationDto {}

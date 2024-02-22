@@ -3,9 +3,8 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserDto } from '@social/common';
 
-
+import { UserDto } from '../dto/user/user.dto';
 
 export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): UserDto & { sessionId: string } => {
@@ -17,5 +16,5 @@ export const CurrentUser = createParamDecorator(
     }
 
     return user;
-  },
+  }
 );

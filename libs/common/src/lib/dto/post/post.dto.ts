@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Post } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import { IsDateString, IsNumber, IsString } from 'class-validator';
 
 export class PostDto implements Partial<Post> {
@@ -16,6 +17,7 @@ export class PostDto implements Partial<Post> {
   content!: string;
 
   @ApiProperty()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
   likes!: number;
 

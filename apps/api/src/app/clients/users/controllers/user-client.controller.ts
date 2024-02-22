@@ -10,9 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiPaginatedResponse,
   AuthGuard,
   CreateUserDto,
-  CurrentUser,
   FilterUserDto,
   UserDto,
 } from '@social/common';
@@ -33,10 +33,8 @@ export class UserClientController {
   }
 
   @Get()
-  async findMany(
-    @Query() query: FilterUserDto,
-    @CurrentUser() user: UserDto
-  ): Promise<UserDto[]> {
+  @ApiPaginatedResponse(UserDto)
+  async findMany(@Query() query: FilterUserDto): Promise<UserDto[]> {
     return this.userClientService.findMany(query);
   }
 
