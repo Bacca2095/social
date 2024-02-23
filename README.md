@@ -69,6 +69,16 @@ $ yarn run start:all
 $ yarn start <app-name>
 ```
 
+Where `<app-name>` is the name of the app to run, it can be `api-gateway`, `auth-app`, `mail-app`, `post-app` or `user-app`.
+
+When the `api-gateway` is running, you can access the app in the browser at `http://localhost:<APP_PORT>/api` to see the swagger documentation.
+
+Example:
+
+```
+http://localhost:3000/api
+```
+
 ## Environment Variables
 
 The following variables must be set in the environment if the default value needs to be overridden.
@@ -87,7 +97,7 @@ For local environment use the `.env`. Consider that any system environment varia
 
 Example:
 
-```env
+```bash
 APP_PORT=3000
 DATABASE_READER_URL="postgresql://prisma:docker@localhost:5432/social"
 DATABASE_WRITER_URL="postgresql://prisma:docker@localhost:5432/social"
@@ -110,3 +120,41 @@ $ yarn build
 # Run the container
 $ docker compose -f "docker-compose.yml" up -d --build
 ```
+
+Open in the browser at `http://localhost:4000/api` to see the swagger documentation.
+
+If you want to change the port, you can change the `docker-compose.yml` file.
+
+```yml
+version: '3.8'
+
+services:
+  api-gateway:
+    ports:
+      - 'PORT:PORT' # Change the port here
+```
+
+And replace the port in the `.docker.env` file.
+
+```bash
+APP_PORT=PORT
+```
+
+Example:
+
+```yml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  api-gateway:
+    ports:
+      - '5000:5000'
+```
+
+```bash
+# .docker.env
+APP_PORT=5000
+```
+
+now you can access the app in the browser at `http://localhost:5000/api`.
