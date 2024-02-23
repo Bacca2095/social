@@ -9,7 +9,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "posts-app:build",
-        "inspect": false
+        "inspect": true,
+        "port": 9203
       },
       "configurations": {
         "development": {

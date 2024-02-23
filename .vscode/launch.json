@@ -1,0 +1,40 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to api-gateway",
+      "request": "attach",
+      "cwd": "${workspaceFolder}/apps/api-gateway",
+      "type": "node",
+      "port": 9200
+    },
+    {
+      "name": "Attach to auth-app",
+      "request": "attach",
+      "cwd": "${workspaceFolder}/apps/auth-app",
+      "type": "node",
+      "port": 9201
+    },
+    {
+      "name": "Attach to mail-app",
+      "request": "attach",
+      "cwd": "${workspaceFolder}/apps/mail-app",
+      "type": "node",
+      "port": 9202
+    },
+    {
+      "name": "Attach to posts-app",
+      "request": "attach",
+      "cwd": "${workspaceFolder}/apps/posts-app",
+      "type": "node",
+      "port": 9203
+    },
+    {
+      "name": "Attach to users-app",
+      "request": "attach",
+      "cwd": "${workspaceFolder}/apps/users-app",
+      "type": "node",
+      "port": 9204
+    }
+  ]
+}

@@ -21,6 +21,20 @@ This is a microservice for social app. It is built with the next libs:
 $ yarn install
 ```
 
+## Project structure
+
+    ├── apps                   # 🚀 NestJS apps
+    │   ├── api-gateway        # 🌐 Api gateway app
+    │   ├── auth-app           # 🔒 Auth app
+    │   ├── mail-app           # 📧 Mail app
+    │   ├── post-app           # 📝 Post app
+    │   └── user-app           # 🙎 User app
+    ├── libs                   # 🤝 Shared code between apps
+    │   └── common             # 📦 Common code
+    ├── docker                 # 🐳 Docker files
+    ├── prisma                 # 🗄️ Prisma schema and migrations
+    └── README.md              # 📚 Project documentation
+
 ## Running the app
 
 Before running the app, you need to have a running instance of RabbitMQ, PostgreSQL and [Environment Variables](#environment-variables) in `.env` file. You can use the following command to run the required services .

@@ -1,5 +1,6 @@
-const { NxWebpackPlugin } = require('@nx/webpack');
 const { join } = require('path');
+
+const { NxWebpackPlugin } = require('@nx/webpack');
 
 module.exports = {
   output: {
@@ -14,6 +15,7 @@ module.exports = {
       assets: ['./src/assets'],
       optimization: false,
       outputHashing: 'none',
+      sourceMap: true,
     }),
   ],
 };

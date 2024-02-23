@@ -9,7 +9,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "mail-app:build",
-        "inspect": false
+        "inspect": true,
+        "port": 9202
       },
       "configurations": {
         "development": {
