@@ -1,6 +1,8 @@
 node_modules
 tmp
 .vscode
-pg
 .nx
 .github
+dist
+docker
+*.env
